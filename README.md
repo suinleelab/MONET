@@ -1,6 +1,8 @@
 # MONET (Medical cONcept rETriever)
 
-## Usage
+## Getting started
+
+### Install dependencies
 
 ```bash
 # clone project
@@ -18,6 +20,9 @@ conda activate MONET
 pip install -r requirements.txt
 ```
 
-```bash
-git config filter.strip-notebook-output.clean 'jupyter nbconvert --ClearOutputPreprocessor.enabled=True --to=notebook --stdin --stdout --log-level=ERROR'
-```
+### Model weights
+will be available soon.
+
+
+### Automatic concept generation.
+

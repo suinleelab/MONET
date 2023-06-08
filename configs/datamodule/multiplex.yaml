@@ -1,0 +1,12 @@
+_target_: MONET.datamodules.multiplex_datamodule.MultiplexDatamodule
+data_dir: ${paths.data_dir}
+batch_size_train: 128
+batch_size_val: 128
+batch_size_test: 128
+dataset_name_train: "pubmed=train"
+dataset_name_val: "fitzpatrick17k=val"
+dataset_name_test: "pubmed=test"
+num_workers: 8
+pin_memory: False
+persistent_workers: False
+split_seed: ???

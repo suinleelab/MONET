@@ -1,0 +1,27 @@
+_target_: MONET.models.contrastive_module.ContrastiveLitModule
+
+train_mode: "text"
+val_mode: "text"
+test_mode: "text"
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 1e-5
+  betas: [0.9, 0.98]
+  eps: 1e-5
+  weight_decay: 0.2
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+  _partial_: true
+  T_0: 10
+  T_mult: 1
+  verbose: True
+
+net:
+  _target_: MONET.models.components.image_text_encoder.ImageTextEncoder
+  backbone_api: "clip"
+  model_name_or_path: "ViT-B/32"
+  graident_checkpoiting_segments: 0
+  device: ???

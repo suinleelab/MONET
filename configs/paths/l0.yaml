@@ -1,0 +1,6 @@
+defaults:
+  - default.yaml
+
+# path to data directory
+data_dir: /sdata/chanwkim/dermatology_datasets/
+log_dir: /projects/leelab2/chanwkim/dermatology_datasets/logs

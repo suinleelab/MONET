@@ -1,0 +1,14 @@
+_target_: MONET.models.classifier_module.ClassifierLitModule
+
+backbone_type: ???
+download_weight: true
+checkpoint_metric: AUROC
+load_path: null
+target_type: ???
+output_dim: ???
+optim_type: Adam
+learning_rate: 1e-5
+loss_weight: null
+weight_decay: 1e-5
+decay_power: cosine
+warmup_steps: 500

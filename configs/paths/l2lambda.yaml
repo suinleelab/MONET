@@ -1,0 +1,5 @@
+defaults:
+  - default.yaml
+
+# path to data directory
+data_dir: /data2/chanwkim/dermatology_datasets/

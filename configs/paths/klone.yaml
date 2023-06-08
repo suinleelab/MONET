@@ -1,0 +1,6 @@
+defaults:
+  - default.yaml
+
+# path to data directory
+data_dir: /scr/chanwkim/dermatology_datasets/
+log_dir: /gscratch/cse/chanwkim/MONET_log/

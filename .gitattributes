@@ -1,0 +1,2 @@
+* text=auto
+*.ipynb filter=strip-notebook-output diff=ipynb linguist-language=Python

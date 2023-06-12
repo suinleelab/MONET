@@ -1,6 +1,6 @@
 # MONET (Medical cONcept rETriever)
 
-## Getting started
+
 
 ### Install dependencies
 
@@ -22,6 +22,3 @@ pip install -r requirements.txt
 
 ### Model weights
 [download](https://aimslab.cs.washington.edu/MONET/weight.pt)
-
-### Automatic concept generation.
-

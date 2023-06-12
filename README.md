@@ -21,8 +21,7 @@ pip install -r requirements.txt
 ```
 
 ### Model weights
-will be available soon.
-
+[download](https://aimslab.cs.washington.edu/MONET/weight.pt)
 
 ### Automatic concept generation.
 

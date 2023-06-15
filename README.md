@@ -22,3 +22,11 @@ pip install -r requirements.txt
 
 ### Model weights
 [download](https://aimslab.cs.washington.edu/MONET/weight.pt)
+
+
+### Training
+Code for preprocessing data and training MONET is available in `src` folder. Evaluation code is in `notebook` folder.
+
+
+### Usage
+Colab notebook for running MONET will be available soon.

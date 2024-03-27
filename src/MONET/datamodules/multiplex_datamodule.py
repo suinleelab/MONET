@@ -20,6 +20,7 @@ from MONET.datamodules.setup_dataset import (
     setup_fitzpatrick17k,
     setup_ham10k,
     setup_isic,
+    setup_proveai,
     setup_pubmed,
     setup_textbook,
 )
@@ -782,6 +783,29 @@ class MultiplexDatamodule(LightningDataModule):
                         split_seed=self.hparams.split_seed,
                         no_duplicates=True,
                         no_training_overlap=True,
+                    )
+                    dataset_save[dataset_name] = {
+                        "train": data_train,
+                        "val": data_val,
+                        "test": data_test,
+                        "all": data_all,
+                    }
+                    print(
+                        f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
+                    )
+
+                if dataset_name == "proveai":
+                    (
+                        data_train,
+                        data_val,
+                        data_test,
+                        data_all,
+                    ) = setup_proveai(
+                        data_dir=Path(self.hparams.data_dir) / "proveai",
+                        n_px=self.hparams.n_px,
+                        norm_mean=self.hparams.norm_mean,
+                        norm_std=self.hparams.norm_std,
+                        split_seed=self.hparams.split_seed,
                     )
                     dataset_save[dataset_name] = {
                         "train": data_train,

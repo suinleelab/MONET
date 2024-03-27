@@ -1335,6 +1335,104 @@ def setup_isic(
     return data_train, data_val, data_test, data_all
 
 
+def setup_proveai(
+    data_dir,
+    n_px,
+    norm_mean,
+    norm_std,
+    split_seed,
+    label_type=None,
+):
+    image_dict = load_pkl(
+        Path(data_dir) / "final_image.pkl",
+        field="images",
+        verbose=True,
+    )
+
+    image_dict_ = OrderedDict()
+    for k, v in image_dict.items():
+        image_dict_[k.replace(".JPG", "")] = str(
+            Path(data_dir) / "final_image" / v
+        )  # v
+    image_dict = image_dict_
+    # import ipdb
+
+    # ipdb.set_trace()
+    # load text
+    text_df = pd.read_csv(Path(data_dir) / "final_metadata_all.csv").set_index(
+        "isic_id"
+    )
+
+    return_label = None
+
+    concept_prompt_dict = {}
+    # for concept_col in skincon_cols:
+    #     concept_prompt_dict[concept_col] = generate_prompt_token_from_concept(
+    #         concept_col[8:], use_random=True
+    #     )
+
+    # check if indices match
+    assert text_df.index.isin(
+        image_dict.keys()
+    ).all(), "Mismatch between text and image indices"
+
+    # split train/val/test
+    train_idx, val_idx = train_test_split(
+        text_df.index, test_size=0.2, random_state=split_seed
+    )
+
+    data_train = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=True,
+        metadata_all=text_df.loc[train_idx, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_train.concept_prompt_dict = concept_prompt_dict
+
+    data_val = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=False,
+        metadata_all=text_df.loc[val_idx, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_val.concept_prompt_dict = concept_prompt_dict
+
+    data_test = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=False,
+        metadata_all=text_df.loc[val_idx, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_test.concept_prompt_dict = concept_prompt_dict
+
+    data_all = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=False,
+        metadata_all=text_df.loc[:, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+
+    data_all.concept_prompt_dict = concept_prompt_dict
+
+    return data_train, data_val, data_test, data_all
+
+
 if __name__ == "__main__":
     import hydra
     import omegaconf

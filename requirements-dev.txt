@@ -1,0 +1,56 @@
+# --------- pytorch --------- #
+torch>=1.10.0
+torchvision>=0.11.0
+pytorch-lightning==1.8.3
+torchmetrics==0.11.0
+
+# --------- hydra --------- #
+hydra-core==1.2.0
+hydra-colorlog==1.2.0
+hydra-optuna-sweeper==1.2.0
+
+# --------- loggers --------- #
+wandb
+# neptune-client
+# mlflow
+# comet-ml
+
+# --------- scientific --------- #
+scikit-learn
+numpy
+pandas
+
+# --------- visualization --------- #
+matplotlib
+seaborn
+tqdm
+
+# --------- Huggingface --------- #
+transformers==4.39.1
+huggingface-hub==0.22.0
+tokenizers==0.15.2
+
+# --------- clip --------- #
+ftfy
+regex
+
+# --------- Preprocess --------- #
+pymupdf==1.21.1
+h5py==3.7.0
+beautifulsoup4==4.11.1
+selenium==4.7.2
+lxml
+nltk
+
+# --------- jupyter --------- #
+jupyter
+notebook
+ipywidgets
+isic-cli
+
+# --------- devtools --------- #
+pyrootutils     # standardizing the project root setup
+pre-commit      # hooks for applying linters on commit
+rich            # beautiful text formatting in terminal
+pytest          # tests
+# sh            # for running bash commands in some tests (linux/macos only)

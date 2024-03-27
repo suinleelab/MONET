@@ -34,6 +34,31 @@ isic metadata download --collections 172 -o isic_metadata_172.csv
 # metadata_all["attribution"]=metadata_all["attribution"].str.replace("ViDIR group", "ViDIR Group")
 # metadata_all.to_csv("data/isic/images/metadata_collection.csv", index=False)
 
+# isic2017_features_path=glob.glob("data/isic/ISIC-2017_Training_Part2_GroundTruth/*.json")
+# isic2017_features_df=pd.concat([pd.read_json(path).sum(axis=0) for path in isic2017_features_path], axis=1).T
+# isic2017_features_df.index=[path.split("/")[-1].replace("_features.json","") for path in isic2017_features_path]
+# #isic2017_features_df[isic2017_features_df>0]=1
+
+# isic2016_features_path=glob.glob("data/isic/ISBI2016_ISIC_Part2_Training_GroundTruth/*.json")
+# isic2016_features_df=pd.concat([pd.read_json(path).sum(axis=0) for path in isic2016_features_path], axis=1).T
+# isic2016_features_df.index=[path.split("/")[-1].replace(".json","") for path in isic2016_features_path]
+# #isic2016_features_df[isic2016_features_df>0]=1
+
+# isic2017_features_df["globules"]=-9
+# index_overlap=list(set(isic2016_features_df.index).intersection(set(isic2017_features_df.index)))
+# isic2017_features_df["globules"][index_overlap]=isic2016_features_df["globules"].loc[index_overlap]
+
+# metadata_all=pd.read_csv("data/isic/images/metadata_collection.csv").set_index(
+#         "isic_id"
+#     )
+# metadata_all=metadata_all.merge(right=isic2017_features_df, how="left", left_index=True, right_index=True)
+
+# metadata_all[isic2017_features_df.columns]=metadata_all[isic2017_features_df.columns].fillna(-9)
+# metadata_all[isic2017_features_df.columns]=metadata_all[isic2017_features_df.columns].astype(int)
+
+# metadata_all.to_csv("data/isic/images/metadata_collection_with_features.csv")
+
+
 
 python src/MONET/preprocess/glob_files.py \
 --input data/isic/images \

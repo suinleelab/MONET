@@ -530,6 +530,7 @@ def setup_fitzddi(
     clean_only=False,
     melanoma_only=False,
     no_duplicates=False,
+    no_training_overlap=False,
     label_type=None,
 ):
     # load fitz
@@ -586,11 +587,20 @@ def setup_fitzddi(
             row[~row.isnull()].values.tolist() for idx, row in dup_idx.iterrows()
         ]
         # print(dup_idx)
-        print(text_df_fitz)
+        print("Before removing duplicates", text_df_fitz.shape)
         text_df_fitz = text_df_fitz.drop(
             [j for i in dup_idx for j in i[1:]], axis="index"
         )
-        print(text_df_fitz)
+        print("After removing duplicates", text_df_fitz.shape)
+    if no_training_overlap:
+        training_overlap_idx = pd.read_csv(
+            Path(data_dir_fitz) / "final_training_overlap.csv", index_col=0
+        )
+        print("Before removing training overlap", text_df_fitz.shape)
+        text_df_fitz = text_df_fitz.drop(
+            training_overlap_idx.index.values, axis="index"
+        )
+        print("After removing training overlap", text_df_fitz.shape)
 
     if melanoma_only:
         text_df_fitz = text_df_fitz[
@@ -610,6 +620,251 @@ def setup_fitzddi(
     text_df_fitz["is_melanoma"] = text_df_fitz["nine_partition_label"].map(
         lambda x: 1 if x == "malignant melanoma" else 0
     )
+    text_df_ddi["is_melanoma"] = text_df_ddi["disease"].map(
+        lambda x: 1 if x == "melanoma" else 0
+    )
+
+    text_df = pd.concat([text_df_fitz, text_df_ddi], axis=0)
+
+    if skincon_only:
+        text_df = text_df.dropna(subset=["skincon_Nodule"])
+
+    if label_type == "melanoma":
+        return_label = ["is_melanoma"]
+    else:
+        return_label = None
+
+    concept_prompt_dict = {}
+    for concept_col in skincon_cols:
+        concept_prompt_dict[concept_col] = generate_prompt_token_from_concept(
+            concept_col[8:], use_random=True
+        )
+
+    # check if indices match
+    assert text_df.index.isin(
+        image_dict.keys()
+    ).all(), "Mismatch between text and image indices"
+    # print(text_df.index)
+    # print(image_dict.keys())
+
+    # split train/val/test
+    train_idx, val_idx = train_test_split(
+        text_df.index, test_size=0.2, random_state=split_seed
+    )
+
+    data_train = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=True,
+        metadata_all=text_df.loc[train_idx, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_train.concept_prompt_dict = concept_prompt_dict
+
+    data_val = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=False,
+        metadata_all=text_df.loc[val_idx, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_val.concept_prompt_dict = concept_prompt_dict
+
+    data_test = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=False,
+        metadata_all=text_df.loc[val_idx, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_test.concept_prompt_dict = concept_prompt_dict
+
+    data_all = BaseDataset(
+        image_path_or_binary_dict=image_dict,
+        n_px=n_px,
+        norm_mean=norm_mean,
+        norm_std=norm_std,
+        augment=False,
+        metadata_all=text_df.loc[:, :],
+        integrity_level="weak",
+        return_label=return_label,
+    )
+    data_all.concept_prompt_dict = concept_prompt_dict
+
+    return data_train, data_val, data_test, data_all
+
+
+def setup_fitzddiderm7pt(
+    data_dir_fitz,
+    data_dir_ddi,
+    data_dir_derm7pt,
+    n_px,
+    norm_mean,
+    norm_std,
+    split_seed,
+    skincon_only=False,
+    clean_only=False,
+    melanoma_only=False,
+    no_duplicates=False,
+    no_training_overlap=False,
+    label_type=None,
+):
+    # load fitz
+    image_dict_fitz = load_pkl(
+        Path(data_dir_fitz) / "final_image.pkl",
+        field="images",
+        verbose=True,
+    )
+    image_dict_fitz_ = OrderedDict()
+    for k, v in image_dict_fitz.items():
+        image_dict_fitz_[k] = str(Path(data_dir_fitz) / "final_image" / v)  # v
+    image_dict_fitz = image_dict_fitz_
+
+    text_df_fitz = pd.read_pickle(
+        Path(data_dir_fitz) / "final_metadata_all.pkl"
+    ).set_index("ImageID")
+    text_df_fitz["source"] = "fitz"
+
+    # load ddi
+    image_dict_ddi = load_pkl(
+        Path(data_dir_ddi) / "final_image.pkl",
+        field="images",
+        verbose=True,
+    )
+    image_dict_ddi_ = OrderedDict()
+    for k, v in image_dict_ddi.items():
+        image_dict_ddi_[k] = str(Path(data_dir_ddi) / "final_image" / v)  # v
+    image_dict_ddi = image_dict_ddi_
+
+    text_df_ddi = pd.read_pickle(
+        Path(data_dir_ddi) / "final_metadata_all.pkl"
+    ).set_index("DDI_file")
+    text_df_ddi["source"] = "ddi"
+
+    # load derm7pt
+    image_dict_derm7pt = load_pkl(
+        Path(data_dir_derm7pt) / "final_image.pkl",
+        field="images",
+        verbose=True,
+    )
+    image_dict_derm7pt_ = OrderedDict()
+    for k, v in image_dict_derm7pt.items():
+        image_dict_derm7pt_[k] = str(Path(data_dir_derm7pt) / "final_image" / v)  # v
+    image_dict_derm7pt = image_dict_derm7pt_
+
+    text_df_derm7pt = pd.read_csv(Path(data_dir_derm7pt) / "final_metadata_all.csv")
+    text_df_derm7pt_clinic = text_df_derm7pt.copy()
+    text_df_derm7pt_clinic["image_type"] = "clinic"
+    text_df_derm7pt_clinic = text_df_derm7pt_clinic.rename(
+        columns={"clinic": "path"}
+    ).drop(columns=["derm"])
+    text_df_derm7pt_clinic = text_df_derm7pt_clinic[
+        ~(
+            text_df_derm7pt_clinic["notes"].str.contains("Replaced clinic")
+            | text_df_derm7pt_clinic["notes"].str.contains("Clinical missing")
+        )
+    ]
+
+    text_df_derm7pt_derm = text_df_derm7pt.copy()
+    text_df_derm7pt_derm["image_type"] = "derm"
+    text_df_derm7pt_derm = text_df_derm7pt_derm.rename(columns={"derm": "path"}).drop(
+        columns=["clinic"]
+    )
+
+    text_df_derm7pt = pd.concat(
+        [text_df_derm7pt_clinic, text_df_derm7pt_derm]
+    ).set_index("path")
+    text_df_derm7pt.index = text_df_derm7pt.index.str.replace("/", "_")
+
+    assert image_dict_fitz.keys().isdisjoint(
+        image_dict_ddi.keys()
+    ), "image_dict keys overlap"
+
+    assert image_dict_fitz.keys().isdisjoint(
+        image_dict_derm7pt.keys()
+    ), "image_dict keys overlap"
+
+    assert image_dict_ddi.keys().isdisjoint(
+        image_dict_derm7pt.keys()
+    ), "image_dict keys overlap"
+
+    # combine image_dict_fitz and image_dict_ddi
+    image_dict = OrderedDict()
+    image_dict.update(image_dict_fitz)
+    image_dict.update(image_dict_ddi)
+    image_dict.update(image_dict_derm7pt)
+
+    # filter text_df_fitz
+    if clean_only:
+        fitz_clean_indices = pd.read_csv(
+            Path(data_dir_fitz) / "final_clean_images.txt", header=None
+        )[0]
+        text_df_fitz = text_df_fitz[text_df_fitz["md5hash"].isin(fitz_clean_indices)]
+
+    if no_duplicates:
+        dup_idx = pd.read_csv(Path(data_dir_fitz) / "final_dupcheck.csv", index_col=0)
+        dup_idx = [
+            row[~row.isnull()].values.tolist() for idx, row in dup_idx.iterrows()
+        ]
+        # print(dup_idx)
+        print("Before removing duplicates", text_df_fitz.shape)
+        text_df_fitz = text_df_fitz.drop(
+            [j for i in dup_idx for j in i[1:]], axis="index"
+        )
+        print("After removing duplicates", text_df_fitz.shape)
+    if no_training_overlap:
+        training_overlap_idx = pd.read_csv(
+            Path(data_dir_fitz) / "final_training_overlap.csv", index_col=0
+        )
+        print("Before removing training overlap", text_df_fitz.shape)
+        text_df_fitz = text_df_fitz.drop(
+            training_overlap_idx.index.values, axis="index"
+        )
+        print("After removing training overlap", text_df_fitz.shape)
+
+    if melanoma_only:
+        text_df_fitz = text_df_fitz[
+            (text_df_fitz["nine_partition_label"] == "malignant melanoma")
+            | (text_df_fitz["nine_partition_label"] == "benign melanocyte")
+            | (text_df_fitz["label"] == "seborrheic keratosis")
+            | (text_df_fitz["label"] == "dermatofibroma")
+        ]
+
+    # filter text_df_ddi
+    if melanoma_only:
+        text_df_ddi = text_df_ddi[
+            text_df_ddi["disease"].map(lambda x: x in ddi_map.keys())
+        ]
+
+    if melanoma_only:
+        text_df_derm7pt = text_df_derm7pt[
+            (text_df_derm7pt["diagnosis"] == "melanoma (less than 0.76 mm)")
+            | (text_df_derm7pt["diagnosis"] == "melanoma (in situ)")
+            | (text_df_derm7pt["diagnosis"] == "melanoma (0.76 to 1.5 mm)")
+            | (text_df_derm7pt["diagnosis"] == "seborrheic keratosis")
+            | (text_df_derm7pt["diagnosis"] == "melanoma (more than 1.5 mm)")
+            | (text_df_derm7pt["diagnosis"] == "dermatofibroma")
+            | (text_df_derm7pt["diagnosis"] == "melanoma metastasis")
+            | (text_df_derm7pt["diagnosis"] == "melanoma")
+        ]
+
+    # set melanoma label
+    text_df_fitz["is_melanoma"] = text_df_fitz["nine_partition_label"].map(
+        lambda x: 1 if x == "malignant melanoma" else 0
+    )
+    text_df_ddi["is_melanoma"] = text_df_ddi["disease"].map(
+        lambda x: 1 if x == "melanoma" else 0
+    )
+
     text_df_ddi["is_melanoma"] = text_df_ddi["disease"].map(
         lambda x: 1 if x == "melanoma" else 0
     )
@@ -819,6 +1074,7 @@ def setup_derm7pt(
     norm_std,
     split_seed,
     derm_or_clinic="all",
+    no_duplicates=False,
     label_type=None,
 ):
     image_dict = load_pkl(
@@ -838,6 +1094,13 @@ def setup_derm7pt(
     text_df_clinic = text_df_clinic.rename(columns={"clinic": "path"}).drop(
         columns=["derm"]
     )
+    text_df_clinic = text_df_clinic[
+        ~(
+            text_df_clinic["notes"].str.contains("Replaced clinic")
+            | text_df_clinic["notes"].str.contains("Clinical missing")
+        )
+    ]
+
     text_df_derm = text_df.copy()
     text_df_derm["image_type"] = "derm"
     text_df_derm = text_df_derm.rename(columns={"derm": "path"}).drop(
@@ -846,6 +1109,16 @@ def setup_derm7pt(
 
     text_df = pd.concat([text_df_clinic, text_df_derm]).set_index("path")
     text_df.index = text_df.index.str.replace("/", "_")
+
+    if no_duplicates:
+        dup_idx = pd.read_csv(Path(data_dir) / "final_dupcheck.csv", index_col=0)
+        dup_idx = [
+            row[~row.isnull()].values.tolist() for idx, row in dup_idx.iterrows()
+        ]
+        # print(dup_idx)
+        print("Before removing duplicates", text_df.shape)
+        text_df = text_df.drop([j for i in dup_idx for j in i[1:]], axis="index")
+        print("After removing duplicates", text_df.shape)
 
     if label_type == "diagnosis":
         text_df["diagnosis_indices"] = text_df["diagnosis"].map(
@@ -890,6 +1163,8 @@ def setup_derm7pt(
         train_idx = text_df[text_df["case_num"].isin(train_idx)].index
         val_idx = text_df[text_df["case_num"].isin(val_idx)].index
         all_idx = text_df.index
+    else:
+        raise ValueError("derm_or_clinic must be derm, clinic, or all")
 
     data_train = BaseDataset(
         image_path_or_binary_dict=image_dict,
@@ -949,6 +1224,8 @@ def setup_isic(
     norm_mean,
     norm_std,
     split_seed,
+    no_duplicates=False,
+    no_training_overlap=False,
     label_type=None,
 ):
     image_dict = load_pkl(
@@ -963,12 +1240,30 @@ def setup_isic(
             Path(data_dir) / "final_image" / v
         )  # v
     image_dict = image_dict_
+    # import ipdb
 
+    # ipdb.set_trace()
     # load text
     text_df = pd.read_csv(Path(data_dir) / "final_metadata_all.csv").set_index(
         "isic_id"
     )
     text_df = text_df[~(text_df["image_type"] == "overview")]
+
+    if no_duplicates:
+        dup_idx = pd.read_csv(Path(data_dir) / "final_dupcheck.csv", index_col=0)
+        dup_idx = [
+            row[~row.isnull()].values.tolist() for idx, row in dup_idx.iterrows()
+        ]
+        print("Before removing duplicates", text_df.shape)
+        text_df = text_df.drop([j for i in dup_idx for j in i[1:]], axis="index")
+        print("After removing duplicates", text_df.shape)
+    if no_training_overlap:
+        training_overlap_idx = pd.read_csv(
+            Path(data_dir) / "final_training_overlap.csv", index_col=0
+        )
+        print("Before removing training overlap", text_df.shape)
+        text_df = text_df.drop(training_overlap_idx.index.values, axis="index")
+        print("After removing training overlap", text_df.shape)
 
     return_label = None
 
@@ -1054,11 +1349,14 @@ if __name__ == "__main__":
     # dm = hydra.utils.instantiate(cfg)
     # dm.setup()
 
-    data_train, data_val, data_test, data_all = setup_isic(
-        Path("/sdata/chanwkim/dermatology_datasets/isic"),
+    data_train, data_val, data_test, data_all = setup_fitzddiderm7pt(
+        data_dir_fitz=Path("/sdata/chanwkim/dermatology_datasets/fitzpatrick17k"),
+        data_dir_ddi=Path("/sdata/chanwkim/dermatology_datasets/ddi"),
+        data_dir_derm7pt=Path("/sdata/chanwkim/dermatology_datasets/derm7pt"),
         n_px=224,
         norm_mean=(0, 0, 0),
         norm_std=(1, 1, 1),
+        melanoma_only=True,
         split_seed=42,
     )
 

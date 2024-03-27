@@ -16,6 +16,7 @@ from MONET.datamodules.setup_dataset import (
     setup_ddi,
     setup_derm7pt,
     setup_fitzddi,
+    setup_fitzddiderm7pt,
     setup_fitzpatrick17k,
     setup_ham10k,
     setup_isic,
@@ -517,6 +518,66 @@ class MultiplexDatamodule(LightningDataModule):
                         f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
                     )
 
+                if dataset_name == "clinical_fd_clean_nodup_nooverlap":
+                    (
+                        data_train,
+                        data_val,
+                        data_test,
+                        data_all,
+                    ) = setup_fitzddi(
+                        data_dir_fitz=Path(self.hparams.data_dir) / "fitzpatrick17k",
+                        data_dir_ddi=Path(self.hparams.data_dir) / "ddi",
+                        n_px=self.hparams.n_px,
+                        norm_mean=self.hparams.norm_mean,
+                        norm_std=self.hparams.norm_std,
+                        skincon_only=False,
+                        clean_only=True,
+                        melanoma_only=False,
+                        no_duplicates=True,
+                        no_training_overlap=True,
+                        label_type="melanoma",
+                        split_seed=self.hparams.split_seed,
+                    )
+                    dataset_save[dataset_name] = {
+                        "train": data_train,
+                        "val": data_val,
+                        "test": data_test,
+                        "all": data_all,
+                    }
+                    print(
+                        f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
+                    )
+                if dataset_name == "clinical_fitzddiderm7pt_clean_nodup_nooverlap":
+                    (
+                        data_train,
+                        data_val,
+                        data_test,
+                        data_all,
+                    ) = setup_fitzddiderm7pt(
+                        data_dir_fitz=Path(self.hparams.data_dir) / "fitzpatrick17k",
+                        data_dir_ddi=Path(self.hparams.data_dir) / "ddi",
+                        data_dir_derm7pt=Path(self.hparams.data_dir) / "derm7pt",
+                        n_px=self.hparams.n_px,
+                        norm_mean=self.hparams.norm_mean,
+                        norm_std=self.hparams.norm_std,
+                        skincon_only=False,
+                        clean_only=True,
+                        melanoma_only=False,
+                        no_duplicates=True,
+                        no_training_overlap=True,
+                        label_type="melanoma",
+                        split_seed=self.hparams.split_seed,
+                    )
+                    dataset_save[dataset_name] = {
+                        "train": data_train,
+                        "val": data_val,
+                        "test": data_test,
+                        "all": data_all,
+                    }
+                    print(
+                        f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
+                    )
+
                 if dataset_name == "ddi":
                     (
                         data_train,
@@ -634,6 +695,56 @@ class MultiplexDatamodule(LightningDataModule):
                         f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
                     )
 
+                if dataset_name == "derm7pt_derm_nodup":
+                    (
+                        data_train,
+                        data_val,
+                        data_test,
+                        data_all,
+                    ) = setup_derm7pt(
+                        data_dir=Path(self.hparams.data_dir) / "derm7pt",
+                        n_px=self.hparams.n_px,
+                        norm_mean=self.hparams.norm_mean,
+                        norm_std=self.hparams.norm_std,
+                        split_seed=self.hparams.split_seed,
+                        derm_or_clinic="derm",
+                        no_duplicates=True,
+                    )
+                    dataset_save[dataset_name] = {
+                        "train": data_train,
+                        "val": data_val,
+                        "test": data_test,
+                        "all": data_all,
+                    }
+                    print(
+                        f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
+                    )
+
+                if dataset_name == "derm7pt_clinical_nodup":
+                    (
+                        data_train,
+                        data_val,
+                        data_test,
+                        data_all,
+                    ) = setup_derm7pt(
+                        data_dir=Path(self.hparams.data_dir) / "derm7pt",
+                        n_px=self.hparams.n_px,
+                        norm_mean=self.hparams.norm_mean,
+                        norm_std=self.hparams.norm_std,
+                        split_seed=self.hparams.split_seed,
+                        derm_or_clinic="clinic",
+                        no_duplicates=True,
+                    )
+                    dataset_save[dataset_name] = {
+                        "train": data_train,
+                        "val": data_val,
+                        "test": data_test,
+                        "all": data_all,
+                    }
+                    print(
+                        f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
+                    )
+
                 if dataset_name == "isic":
                     (
                         data_train,
@@ -646,6 +757,31 @@ class MultiplexDatamodule(LightningDataModule):
                         norm_mean=self.hparams.norm_mean,
                         norm_std=self.hparams.norm_std,
                         split_seed=self.hparams.split_seed,
+                    )
+                    dataset_save[dataset_name] = {
+                        "train": data_train,
+                        "val": data_val,
+                        "test": data_test,
+                        "all": data_all,
+                    }
+                    print(
+                        f"Loaded {dataset_name} dataset. train: {len(data_train)}, val: {len(data_val)}, test: {len(data_test)} all: {len(data_all)}"
+                    )
+
+                if dataset_name == "isic_nodup_nooverlap":
+                    (
+                        data_train,
+                        data_val,
+                        data_test,
+                        data_all,
+                    ) = setup_isic(
+                        data_dir=Path(self.hparams.data_dir) / "isic",
+                        n_px=self.hparams.n_px,
+                        norm_mean=self.hparams.norm_mean,
+                        norm_std=self.hparams.norm_std,
+                        split_seed=self.hparams.split_seed,
+                        no_duplicates=True,
+                        no_training_overlap=True,
                     )
                     dataset_save[dataset_name] = {
                         "train": data_train,

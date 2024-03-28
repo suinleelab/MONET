@@ -10,6 +10,7 @@ pandas
 # --------- visualization --------- #
 matplotlib
 seaborn
+tqdm
 
 # --------- Huggingface --------- #
 transformers==4.39.1

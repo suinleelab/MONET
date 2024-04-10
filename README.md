@@ -3,7 +3,7 @@
 [MONET]() is a CLIP ViT-L/14 vision-language foundation model trained on 105,550 dermatological images paired with natural language descriptions from a large collection of medical literature. MONET can accurately annotate concepts across dermatology images as verified by board-certified dermatologists, competitively with
 supervised models built on previously concept-annotated dermatology datasets of clinical images. MONET enables AI transparency across the entire AI system development pipeline from building inherently interpretable models to dataset and model auditing.
 
-* [Paper](https://github.com/suinleelab/MONET)
+* [Paper](https://doi.org/10.1038/s41591-024-02887-x)
 * [GitHub](https://github.com/suinleelab/MONET)
 
 

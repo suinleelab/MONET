@@ -97,8 +97,8 @@ Code for preprocessing data and training MONET is available in `src` folder. Cod
 medical literature},
     author={Chanwoo Kim and Soham U. Gadgil and Alex J. DeGrave and Jesutofunmi A. Omiye and Zhuo Ran Cai and Roxana Daneshjou and Su-In Lee},
     journal={Nature Medicine},
-    #pages={1--10},
     year={2024},
-    publisher={Nature Publishing Group US New York}
+    doi={10.1038/s41591-024-02887-x},
+    url={https://doi.org/10.1038/s41591-024-02887-x}    
 }
 ```

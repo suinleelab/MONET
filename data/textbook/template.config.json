@@ -1,0 +1,47 @@
+{
+    "textbook_1": [
+        {
+            "return_all": false,
+            "font_list": null,
+            "fontsize_range": [
+                8,
+                10
+            ],
+            "prioritize_text_under_image": null,
+            "text_include_list": [
+                [
+                    "fig"
+                ]
+            ]
+        }
+    ],
+    "textbook_2": [
+        {
+            "return_all": false,
+            "font_list": null,
+            "fontsize_range": null,
+            "prioritize_text_under_image": null,
+            "text_include_list": [
+                [
+                    "figure"
+                ]
+            ]
+        }
+    ],
+    "textbook_3": [
+        {
+            "return_all": false,
+            "font_list": null,
+            "fontsize_range": [
+                0,
+                15
+            ],
+            "prioritize_text_under_image": true,
+            "text_include_list": [
+                [
+                    "fig"
+                ]
+            ]
+        }
+    ]
+}

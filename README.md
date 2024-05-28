@@ -5,7 +5,7 @@ supervised models built on previously concept-annotated dermatology datasets of 
 
 * [Paper](https://doi.org/10.1038/s41591-024-02887-x)
 * [GitHub](https://github.com/suinleelab/MONET)
-* [BibTex](https://github.com/suinleelab/MONET#citation)
+* [BibTex](#citation)
 
 
 ## Getting started

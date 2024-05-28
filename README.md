@@ -5,6 +5,7 @@ supervised models built on previously concept-annotated dermatology datasets of 
 
 * [Paper](https://doi.org/10.1038/s41591-024-02887-x)
 * [GitHub](https://github.com/suinleelab/MONET)
+* [BibTex](https://github.com/suinleelab/MONET#citation)
 
 
 ## Getting started
@@ -15,7 +16,7 @@ To install the required packages, run the following bash commands:
 
 ```bash
 # clone project
-git clone https://github.com/chanwkimlab/MONET
+git clone https://github.com/suinleelab/MONET
 cd MONET
 
 # [OPTIONAL] create conda environment

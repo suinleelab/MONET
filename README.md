@@ -94,12 +94,15 @@ Code for preprocessing data and training MONET is available in `src` folder. Cod
 
 ```bibtex
 @article{kim2024transparent,
-    title={Transparent medical image AI via an image–text foundation model grounded in
-medical literature},
-    author={Chanwoo Kim and Soham U. Gadgil and Alex J. DeGrave and Jesutofunmi A. Omiye and Zhuo Ran Cai and Roxana Daneshjou and Su-In Lee},
+    title = {Transparent medical image AI via an image–text foundation model grounded in medical literature},
+    author = {Kim, Chanwoo and Gadgil, Soham U. and {DeGrave}, Alex J. and Omiye, Jesutofunmi A. and Cai, Zhuo Ran and Daneshjou, Roxana and Lee, Su-In},
     journal={Nature Medicine},
+    volume = {30},
+    number = {4},
     year={2024},
+    pages = {1154--1165},
     doi={10.1038/s41591-024-02887-x},
+    issn = {1546-170X},
     url={https://doi.org/10.1038/s41591-024-02887-x}    
 }
 ```

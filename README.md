@@ -3,10 +3,9 @@
 [MONET](https://doi.org/10.1038/s41591-024-02887-x) is an image-text foundation model trained on 105,550 dermatological images paired with natural language descriptions from a large collection of medical literature. MONET can accurately annotate concepts across dermatology images as verified by board-certified dermatologists, competitively with
 supervised models built on previously concept-annotated dermatology datasets of clinical images. MONET enables AI transparency across the entire AI system development pipeline from building inherently interpretable models to dataset and model auditing.
 
-* [Paper](https://doi.org/10.1038/s41591-024-02887-x)
-* [GitHub](https://github.com/suinleelab/MONET)
-* [BibTex](#citation)
-
+- [Paper](https://doi.org/10.1038/s41591-024-02887-x)
+- [GitHub](https://github.com/suinleelab/MONET)
+- [BibTex](#citation)
 
 ## Getting started
 
@@ -47,7 +46,7 @@ def get_transform(n_px):
             T.CenterCrop(n_px),
             convert_image_to_rgb,
             T.ToTensor(),
-            T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),        
+            T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
         ]
     )
 
@@ -71,11 +70,10 @@ model_hf.eval()
 
 We provide jupyter notebooks to demonstrate how to use MONET for automatic concept annotation and various transparency tasks such as data auditing, model auditing, and inherently interpretable model building.
 
-* Automatic concept annotation: `tutorial/automatic_concept_annotation.ipynb`
-* Data auditing: `tutorial/data_auditing.ipynb`
-* Model auditing: `tutorial/model_auditing.ipynb`
-* Inherently interpretable model building: `tutorial/inherently_interpretable_model_building.ipynb`
-
+- Automatic concept annotation: `tutorial/automatic_concept_annotation.ipynb`
+- Data auditing: `tutorial/data_auditing.ipynb`
+- Model auditing: `tutorial/model_auditing.ipynb`
+- Inherently interpretable model building: `tutorial/inherently_interpretable_model_building.ipynb`
 
 ## MONET Training data
 
@@ -84,6 +82,13 @@ For code to download and preprocess the training data, please refer to the follo
 ```bash
 scripts/preprocess/preprocess_pubmed.sh
 scripts/preprocess/preprocess_pdf.sh
+```
+
+The PubMed portion of the training data is available at [this link](https://aimslab.cs.washington.edu/MONET/pubmed_data.pkl). You can load the data using the following code:
+
+```python
+import pandas as pd
+pd.read_pickle("https://aimslab.cs.washington.edu/MONET/pubmed_data.pkl")
 ```
 
 ## Training / Evaluation
@@ -103,6 +108,6 @@ Code for preprocessing data and training MONET is available in `src` folder. Cod
     pages = {1154--1165},
     doi={10.1038/s41591-024-02887-x},
     issn = {1546-170X},
-    url={https://doi.org/10.1038/s41591-024-02887-x}    
+    url={https://doi.org/10.1038/s41591-024-02887-x}
 }
 ```

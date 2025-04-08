@@ -84,7 +84,7 @@ scripts/preprocess/preprocess_pubmed.sh
 scripts/preprocess/preprocess_pdf.sh
 ```
 
-The PubMed portion of the training data is available at [this link](https://aimslab.cs.washington.edu/MONET/pubmed_data.pkl). You can load the data using the following code:
+The filtered PubMed subset of the training data is available [here](https://aimslab.cs.washington.edu/MONET/pubmed_data.pkl). You can load the data using the following code:
 
 ```python
 import pandas as pd
